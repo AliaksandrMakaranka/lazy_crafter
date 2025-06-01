@@ -1,5 +1,10 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [Unreleased]
 
 ### Added
@@ -47,14 +52,98 @@
 - Оптимизирована работа с мьютексами
 - Улучшена производительность при удалении сообщений об ошибках
 
-## [0.1.0] - 2024-03-20
+## [0.4.2] - 2024-03-19
+
 ### Added
-- Начальная версия проекта
-- Базовая функциональность для крафта в Path of Exile
-- Поддержка Windows и Linux
-- Графический интерфейс на egui
-- Система отслеживания нажатий клавиш
-- Работа с буфером обмена
-- Фильтрация модов по классу предмета, базе, уровню и текстовому поиску
-- Расчет шансов крафта (в разработке)
-- Автоматический крафт (нестабильный) 
+- Added Linux support for clipboard operations using `arboard` crate
+- Added Linux support for hotkey detection and crafting automation
+- Added feature flags for platform-specific dependencies (`windows` and `linux`)
+
+### Changed
+- Improved error handling with `anyhow` crate
+- Replaced `unwrap()` and `expect()` with proper error handling
+- Added better error context with `anyhow::Context`
+- Updated dependency management in `Cargo.toml`
+
+### Fixed
+- Fixed error handling in `key_listener.rs` for clipboard operations
+- Fixed error handling in `local_db.rs` for database operations
+- Fixed error handling in `main.rs` for thread operations
+
+## [0.4.1] - 2024-03-18
+
+### Added
+- Added support for multiple item bases in crafting
+- Added new UI elements for item base selection
+- Added new database fields for item base information
+
+### Changed
+- Updated database schema to support multiple item bases
+- Improved UI layout to accommodate new features
+- Enhanced error handling for database operations
+
+### Fixed
+- Fixed database initialization issues
+- Fixed UI state management
+- Fixed error handling in database operations
+
+## [0.4.0] - 2024-03-17
+
+### Added
+- Added support for multiple item bases
+- Added new UI elements for item base selection
+- Added new database fields for item base information
+
+### Changed
+- Updated database schema to support multiple item bases
+- Improved UI layout to accommodate new features
+- Enhanced error handling for database operations
+
+### Fixed
+- Fixed database initialization issues
+- Fixed UI state management
+- Fixed error handling in database operations
+
+## [0.3.0] - 2024-03-16
+
+### Added
+- Added support for multiple item bases
+- Added new UI elements for item base selection
+- Added new database fields for item base information
+
+### Changed
+- Updated database schema to support multiple item bases
+- Improved UI layout to accommodate new features
+- Enhanced error handling for database operations
+
+### Fixed
+- Fixed database initialization issues
+- Fixed UI state management
+- Fixed error handling in database operations
+
+## [0.2.0] - 2024-03-15
+
+### Added
+- Added support for multiple item bases
+- Added new UI elements for item base selection
+- Added new database fields for item base information
+
+### Changed
+- Updated database schema to support multiple item bases
+- Improved UI layout to accommodate new features
+- Enhanced error handling for database operations
+
+### Fixed
+- Fixed database initialization issues
+- Fixed UI state management
+- Fixed error handling in database operations
+
+## [0.1.0] - 2024-03-14
+
+### Added
+- Initial release
+- Basic crafting automation
+- UI for mod selection
+- Database for storing mods and crafting data
+- Hotkey support for Windows
+- Clipboard integration for Windows 

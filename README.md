@@ -1,6 +1,103 @@
 # Lazy Crafter
 
-Инструмент для автоматизации крафта в Path of Exile.
+A tool for automating crafting in Path of Exile.
+
+## Features
+
+- Basic crafting automation
+- UI for mod selection
+- Database for storing mods and crafting data
+- Hotkey support (Ctrl + Shift + E)
+- Clipboard integration
+- Support for both Windows and Linux
+
+## Installation
+
+### Prerequisites
+
+- Rust (latest stable version)
+- Cargo (comes with Rust)
+
+### Building
+
+For Windows:
+```bash
+cargo build --features windows
+```
+
+For Linux:
+```bash
+cargo build --features linux
+```
+
+### Running
+
+For Windows:
+```bash
+cargo run --features windows
+```
+
+For Linux:
+```bash
+cargo run --features linux
+```
+
+## Usage
+
+1. Launch the application
+2. Select the desired mods in the UI
+3. Set the maximum number of crafting attempts
+4. Press Ctrl + Shift + E to start crafting
+5. The tool will automatically:
+   - Copy item data from the game
+   - Parse the mods
+   - Check if the desired mods are present
+   - Continue crafting if needed
+
+## Development
+
+### Project Structure
+
+- `src/` - Source code
+  - `entities/` - Core domain entities
+  - `storage/` - Data storage implementation
+  - `ui/` - User interface code
+  - `usecases/` - Business logic
+  - `main.rs` - Application entry point
+
+### Building for Development
+
+```bash
+# For Windows
+cargo build --features windows
+
+# For Linux
+cargo build --features linux
+```
+
+### Running Tests
+
+```bash
+cargo test
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Path of Exile community
+- Rust community
+- egui framework
 
 ## ⚠️ Предупреждение
 
