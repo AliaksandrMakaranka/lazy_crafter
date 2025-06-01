@@ -18,16 +18,16 @@ fn handle_event(
     data: &Arc<Mutex<Data>>,
     event: UiEvents,
     craft_repo: &FileRepo,
-) -> Result<(), String> {
+) -> anyhow::Result<()> {
     if event == UiEvents::Started {
         let item_classes = craft_searcher::get_item_classes(craft_repo);
         let item_class_by_base_name = craft_searcher::get_item_class_by_item_name(craft_repo);
-        let data = &mut data.lock_s()?;
+        let data = &mut data.lock_s().map_err(anyhow::Error::msg)?;
         data.item_classes = item_classes;
         data.item_class_by_base_name = item_class_by_base_name;
         debug!(target: "db thread", "Loaded item classes by stat event");
     }
-    let ui_state = ui_states.lock_s()?;
+    let mut ui_state = ui_states.lock_s().map_err(anyhow::Error::msg)?;
     info!(target: "db thread", "Got event, ui_state is {:?}", ui_state);
 
     let item_class = &ui_state.selected_item_class_as_filter;
@@ -42,7 +42,7 @@ fn handle_event(
     drop(ui_state);
     let mod_items = craft_searcher::find_mods(craft_repo, &query);
     let estimation = estimation::calculate_estimation_for_craft(craft_repo, &query);
-    let data = &mut data.lock_s()?;
+    let data = &mut data.lock_s().map_err(anyhow::Error::msg)?;
     data.item_bases = item_bases;
     data.estimation = Some(estimation);
     data.mods_table = mod_items;
@@ -54,7 +54,7 @@ fn run_db_in_background(
     receiver: mpsc::Receiver<UiEvents>,
     ui_states: Arc<Mutex<UiStates>>,
     data: Arc<Mutex<Data>>,
-) {
+) -> anyhow::Result<()> {
     let craft_repo: FileRepo;
     match FileRepo::new() {
         Ok(repo) => {
@@ -62,29 +62,26 @@ fn run_db_in_background(
         }
         Err(e) => {
             error!(target: "db thread", "Database initialization error! {}", e);
-            let ui_states = &mut ui_states.lock().unwrap();
+            let mut ui_states = ui_states.lock_s().map_err(anyhow::Error::msg)?;
             let message = Message {
                 text: format!("Database initialization error! {}", e),
                 created_at: chrono::Local::now().timestamp(),
             };
-
             ui_states.messages.push(message);
-            return ();
+            return Ok(());
         }
     }
 
     thread::spawn(move || loop {
         for event in &receiver {
-            match handle_event(&ui_states, &data, event, &craft_repo) {
-                Ok(_) => (),
-                Err(e) => {
-                    error!(target: "db thread", "{}", e);
-                    return;
-                }
-            };
+            if let Err(e) = handle_event(&ui_states, &data, event, &craft_repo) {
+                error!(target: "db thread", "{}", e);
+                return;
+            }
         }
     });
     info!("db started");
+    Ok(())
 }
 
 fn main() {
@@ -99,7 +96,10 @@ fn main() {
     let data = Arc::new(Mutex::new(Data::default()));
     let ui_states = Arc::new(Mutex::new(UiStates::default()));
 
-    run_db_in_background(ui_rx, Arc::clone(&ui_states), Arc::clone(&data));
+    if let Err(e) = run_db_in_background(ui_rx, Arc::clone(&ui_states), Arc::clone(&data)) {
+        eprintln!("DB thread failed to start: {e}");
+        return;
+    }
     key_listener::run_listener_in_background(back_tx, Arc::clone(&ui_states));
     info!("start ui");
     ui_app::run_ui_in_main_thread(ui_tx, back_rx, ui_states, data);

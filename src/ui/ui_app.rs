@@ -8,6 +8,8 @@ use eframe::egui;
 use egui::{Visuals, Style};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
+use anyhow::Context;
+use crate::utils::sync_ext::MutexLockSExt;
 
 const APP_NAME: &str = "Lazy Crafter";
 
@@ -16,8 +18,9 @@ pub fn run_ui_in_main_thread(
     receiver: mpsc::Receiver<BackEvents>,
     ui_states: Arc<Mutex<UiStates>>,
     data: Arc<Mutex<Data>>,
-) {
-    sender.send(UiEvents::Started);
+) -> anyhow::Result<()> {
+    sender.send(UiEvents::Started)
+        .context("Failed to send Started event to UI")?;
     let mut native_options = eframe::NativeOptions::default();
     native_options.initial_window_size = Some(egui::Vec2 {
         x: 1100.0,
@@ -29,10 +32,12 @@ pub fn run_ui_in_main_thread(
         for event in receiver.iter() {
             match event {
                 BackEvents::Error(err) => {
-                    ui_states_clone.lock().unwrap().messages.push(Message {
-                        text: err.to_string(),
-                        created_at: chrono::Local::now().timestamp(),
-                    });
+                    if let Ok(mut states) = ui_states_clone.lock() {
+                        states.messages.push(Message {
+                            text: err.to_string(),
+                            created_at: chrono::Local::now().timestamp(),
+                        });
+                    }
                 }
                 _ => (),
             };
@@ -48,10 +53,11 @@ pub fn run_ui_in_main_thread(
                 ..Style::default()
             };
             cc.egui_ctx.set_style(style);
-            Box::new(
-            EguiApp::new(cc, ui_states, data, sender))}
-        ),
-    );
+            Box::new(EguiApp::new(cc, ui_states, data, sender))
+        }),
+    ).map_err(|e| anyhow::anyhow!("Failed to start UI application: {}", e))?;
+    
+    Ok(())
 }
 
 struct EguiApp {

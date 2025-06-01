@@ -7,29 +7,30 @@ use log::{debug, error};
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::Read;
+use regex::Regex;
 
 const LOG_TARGET: &str = "file_db";
 
-fn load_from_json<T>(path: &str) -> Result<Vec<T>, Error>
+fn load_from_json<T>(path: &str) -> Result<Vec<T>>
 where
     T: Default + serde::de::DeserializeOwned,
 {
-    let mut file = File::open(path).map_err(Error::from).with_context(|| format!("Failed to open file {}", path))?;
+    let mut file = File::open(path).with_context(|| format!("Failed to open file {}", path))?;
     let mut contents = String::new();
     file.read_to_string(&mut contents).with_context(|| format!("Failed to read file {}", path))?;
 
-    serde_json::from_str(&contents).map_err(Error::from).with_context(|| format!("Wrong file's format {}", path))
+    serde_json::from_str(&contents).with_context(|| format!("Wrong file's format {}", path))
 }
 
 fn json_to_hashmap<T>(path: &str) -> Result<HashMap<String, T>>
 where
     T: Default + serde::de::DeserializeOwned,
 {
-    let mut file = File::open(path).map_err(Error::from).with_context(|| format!("Failed to open file {}", path))?;
+    let mut file = File::open(path).with_context(|| format!("Failed to open file {}", path))?;
     let mut contents = String::new();
     file.read_to_string(&mut contents).with_context(|| format!("Failed to read file {}", path))?;
 
-    serde_json::from_str(&contents).map_err(Error::from).with_context(|| format!("Wrong file's format {}", path))
+    serde_json::from_str(&contents).with_context(|| format!("Wrong file's format {}", path))
 }
 
 pub struct LocalDB {
@@ -165,9 +166,9 @@ impl FileRepo {
             // reverse important else representation calculation is wrong
             let mut cond_passed = true;
             for s in &stats {
-                let stat_position = stats_positions_by_id.get(&s.id).unwrap();
-                let stat_max = s.max.unwrap();
-                let stat_min = s.min.unwrap();
+                let stat_position = stats_positions_by_id.get(&s.id).ok_or_else(|| anyhow::anyhow!("Stat position not found for id: {}", s.id))?;
+                let stat_max = s.max.ok_or_else(|| anyhow::anyhow!("Max value not found for stat: {}", s.id))?;
+                let stat_min = s.min.ok_or_else(|| anyhow::anyhow!("Min value not found for stat: {}", s.id))?;
                 let condition = &i.condition[stat_position.clone()];
 
                 if condition.negated == Some(true) {
@@ -193,14 +194,12 @@ impl FileRepo {
             if cond_passed {
                 let mut repr = i.string.clone();
                 for s in stats {
-                    let stat_position = stats_positions_by_id.get(&s.id).unwrap().clone();
-                    let stat_max = s.max.unwrap();
-                    let stat_min = s.min.unwrap();
-                    let index_handler: String = match i.index_handlers[stat_position.clone()].get(0)
-                    {
-                        Some(ih) => ih.to_string(),
-                        None => String::from("pass"),
-                    };
+                    let stat_position = stats_positions_by_id.get(&s.id).ok_or_else(|| anyhow::anyhow!("Stat position not found for id: {}", s.id))?;
+                    let stat_max = s.max.ok_or_else(|| anyhow::anyhow!("Max value not found for stat: {}", s.id))?;
+                    let stat_min = s.min.ok_or_else(|| anyhow::anyhow!("Min value not found for stat: {}", s.id))?;
+                    let index_handler: String = i.index_handlers[stat_position.clone()].get(0)
+                        .map(|ih| ih.to_string())
+                        .unwrap_or_else(|| String::from("pass"));
 
                     let mut revert_sign = false;
                     if stat_max < 0.0 {
@@ -216,7 +215,8 @@ impl FileRepo {
                     };
                     let v = [
                         '{',
-                        std::char::from_digit(stat_position.try_into().unwrap(), 10).unwrap(),
+                        std::char::from_digit(*stat_position as u32, 10)
+                            .ok_or_else(|| anyhow::anyhow!("Invalid digit for stat position: {}", stat_position))?,
                         '}',
                     ];
                     let from = String::from_iter(v);
@@ -543,13 +543,10 @@ impl CraftRepo for FileRepo {
         };
         let mods = self.find_mods(&query);
 
-        use regex::Regex;
-
         //  bring input mod text in representation form
         //  "blalba +4(2-9) blabla" to "blalba +(2-9) blabla"
-
         let mod_template = Regex::new(r#"([+-])?(\d+(\.\d+)?)(\([aA-zZ]*)"#)
-            .unwrap()
+            .map_err(|e| format!("Failed to compile regex: {}", e))?
             .replace_all(mod_name.trim(), "$1$4");
 
         let multiline_mod = mod_template.contains("\n");
