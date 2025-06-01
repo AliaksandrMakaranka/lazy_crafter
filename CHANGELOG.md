@@ -52,25 +52,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Оптимизирована работа с мьютексами
 - Улучшена производительность при удалении сообщений об ошибках
 
-## [0.4.2] - 2024-03-19
+## [0.1.0] - 2025-03-13
 
 ### Added
-- Added Linux support for clipboard operations using `arboard` crate
-- Added Linux support for hotkey detection and crafting automation
-- Added feature flags for platform-specific dependencies (`windows` and `linux`)
+- Initial release
+- Basic crafting automation
+- UI for mod selection
+- Database for storing mods and crafting data
+- Hotkey support for Windows
+- Clipboard integration for Windows
+
+## [0.2.0] - 2025-03-14
+
+### Added
+- Added support for multiple item bases
+- Added new UI elements for item base selection
+- Added new database fields for item base information
 
 ### Changed
-- Improved error handling with `anyhow` crate
-- Replaced `unwrap()` and `expect()` with proper error handling
-- Added better error context with `anyhow::Context`
-- Updated dependency management in `Cargo.toml`
+- Updated database schema to support multiple item bases
+- Improved UI layout to accommodate new features
+- Enhanced error handling for database operations
 
 ### Fixed
-- Fixed error handling in `key_listener.rs` for clipboard operations
-- Fixed error handling in `local_db.rs` for database operations
-- Fixed error handling in `main.rs` for thread operations
+- Fixed database initialization issues
+- Fixed UI state management
+- Fixed error handling in database operations
 
-## [0.4.1] - 2024-03-18
+## [0.3.0] - 2025-03-15
+
+### Added
+- Added support for multiple item bases
+- Added new UI elements for item base selection
+- Added new database fields for item base information
+
+### Changed
+- Updated database schema to support multiple item bases
+- Improved UI layout to accommodate new features
+- Enhanced error handling for database operations
+
+### Fixed
+- Fixed database initialization issues
+- Fixed UI state management
+- Fixed error handling in database operations
+
+## [0.4.0] - 2025-03-16
+
+### Added
+- Added support for multiple item bases
+- Added new UI elements for item base selection
+- Added new database fields for item base information
+
+### Changed
+- Updated database schema to support multiple item bases
+- Improved UI layout to accommodate new features
+- Enhanced error handling for database operations
+
+### Fixed
+- Fixed database initialization issues
+- Fixed UI state management
+- Fixed error handling in database operations
+
+## [0.4.1] - 2025-03-17
 
 ### Added
 - Added support for multiple item bases in crafting
@@ -87,63 +130,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed UI state management
 - Fixed error handling in database operations
 
-## [0.4.0] - 2024-03-17
+## [0.4.2] - 2025-03-18
 
 ### Added
-- Added support for multiple item bases
-- Added new UI elements for item base selection
-- Added new database fields for item base information
+- Added Linux support for clipboard operations using `arboard` crate
+- Added Linux support for hotkey detection and crafting automation
+- Added feature flags for platform-specific dependencies (`windows` and `linux`)
 
 ### Changed
-- Updated database schema to support multiple item bases
-- Improved UI layout to accommodate new features
-- Enhanced error handling for database operations
+- Improved error handling with `anyhow` crate
+- Replaced `unwrap()` and `expect()` with proper error handling
+- Added better error context with `anyhow::Context`
+- Updated dependency management in `Cargo.toml`
 
 ### Fixed
-- Fixed database initialization issues
-- Fixed UI state management
-- Fixed error handling in database operations
-
-## [0.3.0] - 2024-03-16
-
-### Added
-- Added support for multiple item bases
-- Added new UI elements for item base selection
-- Added new database fields for item base information
-
-### Changed
-- Updated database schema to support multiple item bases
-- Improved UI layout to accommodate new features
-- Enhanced error handling for database operations
-
-### Fixed
-- Fixed database initialization issues
-- Fixed UI state management
-- Fixed error handling in database operations
-
-## [0.2.0] - 2024-03-15
-
-### Added
-- Added support for multiple item bases
-- Added new UI elements for item base selection
-- Added new database fields for item base information
-
-### Changed
-- Updated database schema to support multiple item bases
-- Improved UI layout to accommodate new features
-- Enhanced error handling for database operations
-
-### Fixed
-- Fixed database initialization issues
-- Fixed UI state management
-- Fixed error handling in database operations
-
-## [0.1.0] - 2024-03-14
-
-### Added
-- Initial release
-- Basic crafting automation
-- UI for mod selection
-- Database for storing mods and crafting data
-- Hotkey support for Windows
-- Clipboard integration for Windows 
+- Fixed error handling in `key_listener.rs` for clipboard operations
+- Fixed error handling in `local_db.rs` for database operations
+- Fixed error handling in `main.rs` for thread operations 
